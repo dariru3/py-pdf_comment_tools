@@ -1,6 +1,6 @@
 # Unified PDF Comment Tools
 
-This repo is organized around a single active PDF comment tool with a thin top-level CLI wrapper and a shared internal package.
+This repo is organized around a single PDF comment tool with a thin top-level CLI wrapper and a shared internal package.
 
 ## Install
 
@@ -15,7 +15,6 @@ pip install -r requirements.txt pytest
 - `main.py`: compatibility entrypoint for local CLI use
 - `src/pdf_comment_tools/`: active implementation modules
 - `tests/`: pytest coverage for the active tool
-- `legacy/`: archived imported script repos kept only as references during cleanup
 
 ## Modes
 
@@ -68,6 +67,5 @@ Default output: `highlight_annotations.csv`
 ## Notes
 
 - Active development belongs in `src/pdf_comment_tools/`.
-- `main.py` remains as the stable local runner while the package layout evolves.
-- Archived repos in `legacy/` are not the source of truth for current behavior.
+- `main.py` remains the stable local runner and compatibility wrapper.
 - The merged CLI uses PyMuPDF for all modes.
