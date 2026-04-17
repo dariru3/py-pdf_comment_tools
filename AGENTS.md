@@ -6,7 +6,7 @@
 - `extract-shape-comments`
 - `extract-highlights`
 
-`tests/test_main.py` contains the automated pytest suite. `tests/fixtures/` holds small reusable test assets such as `test_keywords.csv`; PDF fixtures are ignored by Git. Archived imported repos now live under `legacy/` and should not receive new primary logic unless the task is explicitly legacy cleanup or removal.
+`tests/test_main.py` contains the automated pytest suite. `tests/fixtures/` holds small reusable test assets such as `test_keywords.csv`; PDF fixtures are ignored by Git.
 
 ## Build, Test, and Development Commands
 Create an isolated environment before working:
@@ -37,6 +37,6 @@ Tests use `pytest`. Add or update tests for every behavioral change in the merge
 Recent history favors short, imperative commit messages such as `Add pytest coverage for merged PDF tools` and `Restore output directory creation for highlights`. Keep commits focused and avoid mixing refactors with behavior changes. PRs should include:
 - a brief summary of what changed
 - validation commands run
-- any follow-up work, especially sub-repo deduplication or cleanup
+- any follow-up work that remains after the change
 
 If a change affects outputs, mention the impacted CLI mode explicitly.
