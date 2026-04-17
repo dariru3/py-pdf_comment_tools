@@ -1,9 +1,11 @@
 import csv
 from pathlib import Path
+import subprocess
+import sys
 
 import fitz
 
-import main
+import pdf_comment_tools as tool
 
 
 def _make_sample_pdf(pdf_path: Path) -> None:
@@ -75,7 +77,7 @@ def test_extract_highlight_rows_reads_highlight_comment(tmp_path: Path) -> None:
     pdf_path = tmp_path / "sample.pdf"
     _make_sample_pdf(pdf_path)
 
-    rows = main.extract_highlight_rows(pdf_path, pages=None)
+    rows = tool.extract_highlight_rows(pdf_path, pages=None)
 
     assert len(rows) == 1
     assert rows[0]["page"] == 1
@@ -88,7 +90,7 @@ def test_extract_shape_comment_rows_includes_reply_chain(tmp_path: Path) -> None
     pdf_path = tmp_path / "sample.pdf"
     _make_sample_pdf(pdf_path)
 
-    rows = main.extract_shape_comment_rows(pdf_path, pages=None)
+    rows = tool.extract_shape_comment_rows(pdf_path, pages=None)
 
     assert len(rows) == 1
     assert rows[0]["page"] == 2
@@ -106,9 +108,9 @@ def test_highlight_keywords_writes_summary_and_output_pdf(tmp_path: Path) -> Non
     _make_sample_pdf(pdf_path)
     _make_keywords_csv(csv_path)
 
-    main.highlight_keywords(
+    tool.highlight_keywords(
         pdf_paths=[pdf_path],
-        keywords=main.load_keywords(str(csv_path)),
+        keywords=tool.load_keywords(str(csv_path)),
         pages=None,
         output_dir=output_dir,
         summary_path=summary_path,
@@ -124,10 +126,24 @@ def test_highlight_keywords_writes_summary_and_output_pdf(tmp_path: Path) -> Non
     assert len(rows) == 2
     assert rows[0]["keyword"] == "Alpha"
     assert rows[0]["count"] == "1"
-    assert rows[0]["comment_author"] == main.COMMENT_AUTHOR
+    assert rows[0]["comment_author"] == tool.COMMENT_AUTHOR
     assert rows[1]["keyword"] == "Beta"
     assert rows[1]["count"] == "1"
 
 
 def test_parse_pages_supports_single_values_and_ranges() -> None:
-    assert main.parse_pages("1,3-4,7") == {1, 3, 4, 7}
+    assert tool.parse_pages("1,3-4,7") == {1, 3, 4, 7}
+
+
+def test_main_wrapper_shows_cli_help() -> None:
+    root = Path(__file__).resolve().parent.parent
+    result = subprocess.run(
+        [sys.executable, "main.py", "--help"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "Unified PDF comment tool" in result.stdout
