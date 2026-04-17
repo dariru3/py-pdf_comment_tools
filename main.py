@@ -207,6 +207,7 @@ def highlight_keywords(
     output_dir: Path,
     summary_path: Path,
 ) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
     summary_rows: list[dict[str, object]] = []
 
     for pdf_path in pdf_paths:
@@ -267,11 +268,15 @@ def map_replies_to_parents(page: fitz.Page) -> dict[int, list[str]]:
     reply_map: dict[int, list[str]] = {}
     for annot in iter_annotations(page):
         parent_ref = getattr(annot, "irt", None) or getattr(annot, "in_reply_to", None)
-        if not parent_ref:
-            continue
+        if isinstance(parent_ref, int):
+            parent_xref = parent_ref
+        else:
+            parent_xref = getattr(parent_ref, "xref", None) if parent_ref else None
 
-        parent_xref = getattr(parent_ref, "xref", None)
         if parent_xref is None:
+            parent_xref = getattr(annot, "irt_xref", None)
+
+        if parent_xref is None or parent_xref <= 0:
             continue
 
         content = (annot.info.get("content") or "").strip()
