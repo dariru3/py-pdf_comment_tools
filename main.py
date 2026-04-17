@@ -207,6 +207,7 @@ def highlight_keywords(
     output_dir: Path,
     summary_path: Path,
 ) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
     summary_rows: list[dict[str, object]] = []
 
     for pdf_path in pdf_paths:
