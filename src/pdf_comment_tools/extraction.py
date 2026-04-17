@@ -33,82 +33,78 @@ def map_replies_to_parents(page: fitz.Page) -> dict[int, list[str]]:
 
 def extract_shape_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    doc = fitz.open(pdf_path)
-
     print(f"Processing {pdf_path}...")
-    for page_index, page in enumerate(doc, start=1):
-        if pages and page_index not in pages:
-            continue
-
-        reply_map = map_replies_to_parents(page)
-        page_rows = 0
-
-        for annot in iter_annotations(page):
-            annot_name = annot.type[1].lower()
-            if annot_name not in SHAPE_TYPES:
+    with fitz.open(pdf_path) as doc:
+        for page_index, page in enumerate(doc, start=1):
+            if pages and page_index not in pages:
                 continue
 
-            comment_chain: list[str] = []
-            parent_content = (annot.info.get("content") or "").strip()
-            parent_author = (annot.info.get("title") or "Unknown").strip()
-            if parent_content:
-                comment_chain.append(f"[{parent_author}]: {parent_content}")
-            if annot.xref in reply_map:
-                comment_chain.extend(reply_map[annot.xref])
-            if not comment_chain:
-                continue
+            reply_map = map_replies_to_parents(page)
+            page_rows = 0
 
-            rows.append(
-                {
-                    "page": page_index,
-                    "type": annot.type[1],
-                    "author_comment": " | ".join(comment_chain),
-                    "target_text": extract_text_from_rect(page, annot.rect),
-                    "coordinates": format_rect(annot.rect),
-                    "input_file": str(pdf_path),
-                }
-            )
-            page_rows += 1
+            for annot in iter_annotations(page):
+                annot_name = annot.type[1].lower()
+                if annot_name not in SHAPE_TYPES:
+                    continue
 
-        if page_rows:
-            print(f"  Page {page_index}: found {page_rows} shape annotations with comments")
+                comment_chain: list[str] = []
+                parent_content = (annot.info.get("content") or "").strip()
+                parent_author = (annot.info.get("title") or "Unknown").strip()
+                if parent_content:
+                    comment_chain.append(f"[{parent_author}]: {parent_content}")
+                if annot.xref in reply_map:
+                    comment_chain.extend(reply_map[annot.xref])
+                if not comment_chain:
+                    continue
 
-    doc.close()
+                rows.append(
+                    {
+                        "page": page_index,
+                        "type": annot.type[1],
+                        "author_comment": " | ".join(comment_chain),
+                        "target_text": extract_text_from_rect(page, annot.rect),
+                        "coordinates": format_rect(annot.rect),
+                        "input_file": str(pdf_path),
+                    }
+                )
+                page_rows += 1
+
+            if page_rows:
+                print(f"  Page {page_index}: found {page_rows} shape annotations with comments")
+
     return rows
 
 
 def extract_highlight_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    doc = fitz.open(pdf_path)
-
     print(f"Processing {pdf_path}...")
-    for page_index, page in enumerate(doc, start=1):
-        if pages and page_index not in pages:
-            continue
-
-        page_rows = 0
-        for annot in iter_annotations(page):
-            if annot.type[1].lower() != "highlight":
+    with fitz.open(pdf_path) as doc:
+        for page_index, page in enumerate(doc, start=1):
+            if pages and page_index not in pages:
                 continue
 
-            info = annot.info
-            rows.append(
-                {
-                    "page": page_index,
-                    "type": annot.type[1],
-                    "author": (info.get("title") or "").strip(),
-                    "comment": (info.get("content") or "").strip(),
-                    "highlighted_text": extract_text_from_rect(page, annot.rect),
-                    "coordinates": format_rect(annot.rect),
-                    "input_file": str(pdf_path),
-                }
-            )
-            page_rows += 1
+            page_rows = 0
+            for annot in iter_annotations(page):
+                if annot.type[1].lower() != "highlight":
+                    continue
 
-        if page_rows:
-            print(f"  Page {page_index}: found {page_rows} highlights")
+                info = annot.info
+                rows.append(
+                    {
+                        "page": page_index,
+                        "type": annot.type[1],
+                        "author": (info.get("title") or "").strip(),
+                        "comment": (info.get("content") or "").strip(),
+                        "highlighted_text": extract_text_from_rect(page, annot.rect),
+                        "coordinates": format_rect(annot.rect),
+                        "input_file": str(pdf_path),
+                    }
+                )
+                page_rows += 1
 
-    doc.close()
+            if page_rows:
+                print(f"  Page {page_index}: found {page_rows} highlights")
+
     return rows
 
 
