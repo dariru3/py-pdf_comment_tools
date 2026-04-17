@@ -32,26 +32,24 @@ def highlight_keywords(
 
     for pdf_path in pdf_paths:
         print(f"Processing {pdf_path}...")
-        doc = fitz.open(pdf_path)
         matches_record = {item["keyword"]: 0 for item in keywords}
-
-        for page_index, page in enumerate(doc, start=1):
-            if pages and page_index not in pages:
-                continue
-
-            print(f"  Scanning page {page_index}...")
-            for item in keywords:
-                matches = page.search_for(item["keyword"])
-                if not matches:
+        with fitz.open(pdf_path) as doc:
+            for page_index, page in enumerate(doc, start=1):
+                if pages and page_index not in pages:
                     continue
 
-                matches_record[item["keyword"]] += len(matches)
-                for rect in matches:
-                    apply_highlight(page, rect, item["comment"], item["color"])
+                print(f"  Scanning page {page_index}...")
+                for item in keywords:
+                    matches = page.search_for(item["keyword"])
+                    if not matches:
+                        continue
 
-        output_pdf = default_annotated_pdf_path(pdf_path, output_dir)
-        doc.save(output_pdf, garbage=3, deflate=True)
-        doc.close()
+                    matches_record[item["keyword"]] += len(matches)
+                    for rect in matches:
+                        apply_highlight(page, rect, item["comment"], item["color"])
+
+            output_pdf = default_annotated_pdf_path(pdf_path, output_dir)
+            doc.save(output_pdf, garbage=3, deflate=True)
 
         for item in keywords:
             summary_rows.append(
