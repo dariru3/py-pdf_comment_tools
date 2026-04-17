@@ -52,6 +52,14 @@ Default output: `highlight_annotations.csv`
 - `--output-dir /path/to/out` to redirect default output files
 - `--output /path/to/file.csv` to override the CSV output path
 
+## Tests
+
+Install `pytest` in your environment, then run:
+
+```bash
+pytest
+```
+
 ## Notes
 
 - The original imported script directories are left intact for reference.
