@@ -35,6 +35,7 @@ Default outputs:
 ### 2. Extract comments from shape annotations
 
 Extract supported annotation comments in one mode:
+
 - square / circle / polygon comments
 - highlight comments
 - reply chains on both shapes and highlights
