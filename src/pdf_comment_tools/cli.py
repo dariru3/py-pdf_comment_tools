@@ -3,17 +3,14 @@ from pathlib import Path
 import sys
 
 from pdf_comment_tools.constants import (
-    DEFAULT_HIGHLIGHT_OUTPUT,
-    DEFAULT_SHAPE_OUTPUT,
+    DEFAULT_COMMENTS_OUTPUT,
     DEFAULT_SUMMARY_NAME,
 )
 from pdf_comment_tools.csv_utils import load_keywords
 from pdf_comment_tools.extraction import (
-    extract_highlight_rows,
-    extract_shape_comment_rows,
+    extract_comment_rows,
     map_replies_to_parents,
-    run_extract_highlights,
-    run_extract_shape_comments,
+    run_extract_comments,
 )
 from pdf_comment_tools.highlighting import highlight_keywords
 from pdf_comment_tools.pdf_utils import (
@@ -35,7 +32,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--mode",
         required=True,
-        choices=("highlight-keywords", "extract-shape-comments", "extract-highlights"),
+        choices=("highlight-keywords", "extract-comments"),
         help="Which tool mode to run.",
     )
     parser.add_argument("--pdf", help="Path to a single PDF file.")
@@ -99,13 +96,8 @@ def main() -> int:
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
         output_dir = ensure_output_dir(args.output_dir, pdf_path.parent)
-        if args.mode == "extract-shape-comments":
-            output_path = Path(args.output).expanduser() if args.output else output_dir / DEFAULT_SHAPE_OUTPUT
-            run_extract_shape_comments(pdf_path, pages, output_path)
-            return 0
-
-        output_path = Path(args.output).expanduser() if args.output else output_dir / DEFAULT_HIGHLIGHT_OUTPUT
-        run_extract_highlights(pdf_path, pages, output_path)
+        output_path = Path(args.output).expanduser() if args.output else output_dir / DEFAULT_COMMENTS_OUTPUT
+        run_extract_comments(pdf_path, pages, output_path)
         return 0
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
@@ -116,8 +108,7 @@ __all__ = [
     "default_annotated_pdf_path",
     "ensure_output_dir",
     "expand_rect",
-    "extract_highlight_rows",
-    "extract_shape_comment_rows",
+    "extract_comment_rows",
     "extract_text_from_rect",
     "format_rect",
     "highlight_keywords",
@@ -128,7 +119,6 @@ __all__ = [
     "parse_args",
     "parse_pages",
     "resolve_pdf_paths",
-    "run_extract_highlights",
-    "run_extract_shape_comments",
+    "run_extract_comments",
     "validate_args",
 ]

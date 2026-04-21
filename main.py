@@ -9,15 +9,13 @@ if str(SRC) not in sys.path:
 from pdf_comment_tools import (  # noqa: E402
     COLOR_MAP,
     COMMENT_AUTHOR,
-    DEFAULT_HIGHLIGHT_OUTPUT,
-    DEFAULT_SHAPE_OUTPUT,
+    DEFAULT_COMMENTS_OUTPUT,
     DEFAULT_SUMMARY_NAME,
     SHAPE_TYPES,
     default_annotated_pdf_path,
     ensure_output_dir,
     expand_rect,
-    extract_highlight_rows,
-    extract_shape_comment_rows,
+    extract_comment_rows,
     extract_text_from_rect,
     format_rect,
     highlight_keywords,
@@ -28,8 +26,7 @@ from pdf_comment_tools import (  # noqa: E402
     parse_args,
     parse_pages,
     resolve_pdf_paths,
-    run_extract_highlights,
-    run_extract_shape_comments,
+    run_extract_comments,
     validate_args,
 )
 

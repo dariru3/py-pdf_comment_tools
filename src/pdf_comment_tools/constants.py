@@ -1,7 +1,6 @@
 COMMENT_AUTHOR = "Highlighter"
 DEFAULT_SUMMARY_NAME = "keyword_summary.csv"
-DEFAULT_SHAPE_OUTPUT = "shape_annotations.csv"
-DEFAULT_HIGHLIGHT_OUTPUT = "highlight_annotations.csv"
+DEFAULT_COMMENTS_OUTPUT = "annotation_comments.csv"
 
 COLOR_MAP = {
     "blue": (0.0, 0.0, 1.0),
