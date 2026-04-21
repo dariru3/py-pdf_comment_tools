@@ -10,6 +10,12 @@ source .venv/bin/activate
 pip install -r requirements.txt pytest
 ```
 
+You can also install the package directly:
+
+```bash
+pip install -e .
+```
+
 ## Repo Layout
 
 - `main.py`: compatibility entrypoint for local CLI use
@@ -63,3 +69,18 @@ Default output: `annotation_comments.csv`
 - Active development belongs in `src/pdf_comment_tools/`.
 - `main.py` remains the stable local runner and compatibility wrapper.
 - The merged CLI uses PyMuPDF for all modes.
+
+## Google Colab
+
+For a shareable Colab workflow, use the notebook in
+[`notebooks/py_pdf_comment_tools_colab.ipynb`](notebooks/py_pdf_comment_tools_colab.ipynb).
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dariru3/py-pdf_comment_tools/blob/main/notebooks/py_pdf_comment_tools_colab.ipynb)
+
+The notebook is optimized for a single PDF at a time and supports:
+
+- uploading one PDF and one keywords CSV for `highlight-keywords`
+- uploading one annotated PDF for `extract-comments`
+- downloading the generated output files directly from Colab
+
+The Colab notebook installs the repo from GitHub and uses the package API directly rather than shelling through `main.py`.
