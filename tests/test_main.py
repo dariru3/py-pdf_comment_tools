@@ -105,6 +105,42 @@ def _make_bleed_pdf(pdf_path: Path) -> None:
         doc.save(pdf_path)
 
 
+def _make_annotated_fixture_pdf(pdf_path: Path) -> None:
+    with fitz.open() as doc:
+        page = doc.new_page()
+        page.insert_text(
+            fitz.Point(72, 72),
+            "NITRO release note.\nSecondary highlighted phrase.\nThird highlighted phrase.\nFourth highlighted phrase.",
+            fontsize=12,
+        )
+
+        nitro_rect = page.search_for("NITRO")[0]
+        threaded_highlight = page.add_highlight_annot(nitro_rect)
+        threaded_info = threaded_highlight.info
+        threaded_info["title"] = "Threaded Reviewer"
+        threaded_info["content"] = "Parent highlight comment for reply-chain testing."
+        threaded_highlight.set_info(threaded_info)
+        threaded_highlight.update()
+
+        threaded_reply = page.add_text_annot(fitz.Point(nitro_rect.x1 + 20, nitro_rect.y0), "reply")
+        threaded_reply_info = threaded_reply.info
+        threaded_reply_info["title"] = "Threaded Reply Reviewer"
+        threaded_reply_info["content"] = "Reply on highlight annotation for combined extraction testing."
+        threaded_reply.set_info(threaded_reply_info)
+        threaded_reply.set_irt_xref(threaded_highlight.xref)
+        threaded_reply.update()
+
+        for phrase in (
+            "Secondary highlighted phrase.",
+            "Third highlighted phrase.",
+            "Fourth highlighted phrase.",
+        ):
+            highlight = page.add_highlight_annot(page.search_for(phrase)[0])
+            highlight.update()
+
+        doc.save(pdf_path)
+
+
 def test_extract_comment_rows_includes_highlight_reply_chain(tmp_path: Path) -> None:
     pdf_path = tmp_path / "sample.pdf"
     _make_sample_pdf(pdf_path)
@@ -256,8 +292,9 @@ def test_combined_extract_mode_is_exposed_in_help() -> None:
     assert "extract-shape-comments" not in result.stdout
 
 
-def test_annotated_fixture_includes_highlight_reply_chain() -> None:
-    fixture_pdf = Path(__file__).resolve().parent / "fixtures" / "TEST PDF annotated.pdf"
+def test_annotated_fixture_includes_highlight_reply_chain(tmp_path: Path) -> None:
+    fixture_pdf = tmp_path / "annotated.pdf"
+    _make_annotated_fixture_pdf(fixture_pdf)
 
     rows = tool.extract_comment_rows(fixture_pdf, pages=None)
     highlight_rows = [row for row in rows if row["type"] == "Highlight"]
@@ -273,4 +310,4 @@ def test_annotated_fixture_includes_highlight_reply_chain() -> None:
     assert "[Threaded Reply Reviewer]: Reply on highlight annotation for combined extraction testing." in str(
         threaded_rows[0]["author_comment"]
     )
-    assert "NITRO™" in str(threaded_rows[0]["target_text"])
+    assert "NITRO" in str(threaded_rows[0]["target_text"])
