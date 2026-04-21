@@ -13,7 +13,7 @@ def _make_sample_pdf(pdf_path: Path) -> None:
         page1 = doc.new_page()
         page1.insert_text(
             fitz.Point(72, 72),
-            "Alpha keyword is here.\nBeta keyword is also here.",
+            "Alpha keyword is here.\nBeta keyword is also here.\nGamma highlight no comment.",
             fontsize=12,
         )
         alpha_rect = page1.search_for("Alpha keyword")[0]
@@ -32,10 +32,14 @@ def _make_sample_pdf(pdf_path: Path) -> None:
         highlight_reply.set_irt_xref(highlight.xref)
         highlight_reply.update()
 
+        gamma_rect = page1.search_for("Gamma highlight no comment.")[0]
+        gamma_highlight = page1.add_highlight_annot(gamma_rect)
+        gamma_highlight.update()
+
         page2 = doc.new_page()
         page2.insert_text(
             fitz.Point(72, 72),
-            "Shape annotation target text.\nReply chain target.",
+            "Shape annotation target text.\nReply chain target.\nShape without comment target.",
             fontsize=12,
         )
         target_rect = page2.search_for("Shape annotation target text.")[0]
@@ -55,6 +59,17 @@ def _make_sample_pdf(pdf_path: Path) -> None:
         reply.set_info(reply_info)
         reply.set_irt_xref(square.xref)
         reply.update()
+
+        no_comment_rect = page2.search_for("Shape without comment target.")[0]
+        no_comment_square = page2.add_rect_annot(
+            fitz.Rect(
+                no_comment_rect.x0 - 4,
+                no_comment_rect.y0 - 4,
+                no_comment_rect.x1 + 4,
+                no_comment_rect.y1 + 4,
+            )
+        )
+        no_comment_square.update()
 
         doc.save(pdf_path)
 
@@ -86,11 +101,26 @@ def test_extract_comment_rows_includes_highlight_reply_chain(tmp_path: Path) -> 
     rows = tool.extract_comment_rows(pdf_path, pages=None)
     highlight_rows = [row for row in rows if row["type"] == "Highlight"]
 
-    assert len(highlight_rows) == 1
-    assert highlight_rows[0]["page"] == 1
-    assert "[Reviewer One]: Check highlighted keyword." in str(highlight_rows[0]["author_comment"])
-    assert "[Reviewer Four]: Highlight reply comment." in str(highlight_rows[0]["author_comment"])
-    assert "Alpha keyword" in str(highlight_rows[0]["target_text"])
+    assert len(highlight_rows) == 2
+    threaded_rows = [row for row in highlight_rows if "[Reviewer One]: Check highlighted keyword." in str(row["author_comment"])]
+
+    assert len(threaded_rows) == 1
+    assert threaded_rows[0]["page"] == 1
+    assert "[Reviewer Four]: Highlight reply comment." in str(threaded_rows[0]["author_comment"])
+    assert "Alpha keyword" in str(threaded_rows[0]["target_text"])
+
+
+def test_extract_comment_rows_keeps_highlight_without_comment_chain(tmp_path: Path) -> None:
+    pdf_path = tmp_path / "sample.pdf"
+    _make_sample_pdf(pdf_path)
+
+    rows = tool.extract_comment_rows(pdf_path, pages=None)
+    plain_highlights = [
+        row for row in rows if row["type"] == "Highlight" and "Gamma highlight no comment." in str(row["target_text"])
+    ]
+
+    assert len(plain_highlights) == 1
+    assert plain_highlights[0]["author_comment"] == ""
 
 
 def test_extract_comment_rows_includes_shape_reply_chain(tmp_path: Path) -> None:
@@ -100,12 +130,27 @@ def test_extract_comment_rows_includes_shape_reply_chain(tmp_path: Path) -> None
     rows = tool.extract_comment_rows(pdf_path, pages=None)
     shape_rows = [row for row in rows if row["type"] == "Square"]
 
-    assert len(shape_rows) == 1
-    assert shape_rows[0]["page"] == 2
-    assert shape_rows[0]["type"] == "Square"
-    assert "[Reviewer Two]: Parent shape comment." in str(shape_rows[0]["author_comment"])
-    assert "[Reviewer Three]: Reply comment." in str(shape_rows[0]["author_comment"])
-    assert "Shape annotation target text." in str(shape_rows[0]["target_text"])
+    assert len(shape_rows) == 2
+    threaded_rows = [row for row in shape_rows if "[Reviewer Two]: Parent shape comment." in str(row["author_comment"])]
+
+    assert len(threaded_rows) == 1
+    assert threaded_rows[0]["page"] == 2
+    assert threaded_rows[0]["type"] == "Square"
+    assert "[Reviewer Three]: Reply comment." in str(threaded_rows[0]["author_comment"])
+    assert "Shape annotation target text." in str(threaded_rows[0]["target_text"])
+
+
+def test_extract_comment_rows_keeps_shape_without_comment_chain(tmp_path: Path) -> None:
+    pdf_path = tmp_path / "sample.pdf"
+    _make_sample_pdf(pdf_path)
+
+    rows = tool.extract_comment_rows(pdf_path, pages=None)
+    plain_shapes = [
+        row for row in rows if row["type"] == "Square" and "Shape without comment target." in str(row["target_text"])
+    ]
+
+    assert len(plain_shapes) == 1
+    assert plain_shapes[0]["author_comment"] == ""
 
 
 def test_highlight_keywords_writes_summary_and_output_pdf(tmp_path: Path) -> None:
