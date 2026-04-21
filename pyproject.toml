@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf-comment-tools"
+version = "0.1.0"
+description = "Unified PDF comment tools for keyword highlighting and annotation extraction."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PyMuPDF>=1.26.7",
+]
+
+[project.scripts]
+pdf-comment-tools = "pdf_comment_tools:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
