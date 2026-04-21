@@ -34,23 +34,16 @@ Default outputs:
 
 ### 2. Extract comments from shape annotations
 
-Extract square / circle / polygon comments and the text under the annotated area.
+Extract supported annotation comments in one mode:
+- square / circle / polygon comments
+- highlight comments
+- reply chains on both shapes and highlights
 
 ```bash
-python main.py --mode extract-shape-comments --pdf /path/to/file.pdf
+python main.py --mode extract-comments --pdf /path/to/file.pdf
 ```
 
-Default output: `shape_annotations.csv`
-
-### 3. Extract highlight annotations
-
-Extract highlight annotation metadata and the text inside the highlighted region.
-
-```bash
-python main.py --mode extract-highlights --pdf /path/to/file.pdf
-```
-
-Default output: `highlight_annotations.csv`
+Default output: `annotation_comments.csv`
 
 ## Common options
 
