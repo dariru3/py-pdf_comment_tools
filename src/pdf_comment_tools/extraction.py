@@ -4,7 +4,12 @@ import fitz  # type: ignore
 
 from pdf_comment_tools.constants import SHAPE_TYPES
 from pdf_comment_tools.csv_utils import write_csv_rows
-from pdf_comment_tools.pdf_utils import extract_text_from_rect, format_rect, iter_annotations
+from pdf_comment_tools.pdf_utils import (
+    extract_text_from_highlight,
+    extract_text_from_rect,
+    format_rect,
+    iter_annotations,
+)
 
 
 def map_replies_to_parents(page: fitz.Page) -> dict[int, list[str]]:
@@ -47,6 +52,12 @@ def is_supported_comment_annotation(annot: fitz.Annot) -> bool:
     return annot_name == "highlight" or annot_name in SHAPE_TYPES
 
 
+def extract_annotation_target_text(page: fitz.Page, annot: fitz.Annot) -> str:
+    if annot.type[1].lower() == "highlight":
+        return extract_text_from_highlight(page, annot)
+    return extract_text_from_rect(page, annot.rect)
+
+
 def extract_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     print(f"Processing {pdf_path}...")
@@ -68,7 +79,7 @@ def extract_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[st
                         "page": page_index,
                         "type": annot.type[1],
                         "author_comment": comment_chain,
-                        "target_text": extract_text_from_rect(page, annot.rect),
+                        "target_text": extract_annotation_target_text(page, annot),
                         "coordinates": format_rect(annot.rect),
                         "input_file": str(pdf_path),
                     }
