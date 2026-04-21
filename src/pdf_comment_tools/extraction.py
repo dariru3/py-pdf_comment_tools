@@ -62,8 +62,6 @@ def extract_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[st
                     continue
 
                 comment_chain = build_comment_chain(annot, reply_map)
-                if not comment_chain:
-                    continue
 
                 rows.append(
                     {
@@ -86,7 +84,7 @@ def extract_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[st
 def run_extract_comments(pdf_path: Path, pages: set[int] | None, output_path: Path) -> None:
     rows = extract_comment_rows(pdf_path, pages)
     if not rows:
-        print("No supported comment annotations found; CSV not written.")
+        print("No supported annotations found; CSV not written.")
         return
 
     write_csv_rows(
