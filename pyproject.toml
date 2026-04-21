@@ -9,7 +9,7 @@ description = "Unified PDF comment tools for keyword highlighting and annotation
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "PyMuPDF==1.26.7",
+    "PyMuPDF>=1.26.7",
 ]
 
 [project.scripts]
