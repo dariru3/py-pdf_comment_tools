@@ -67,6 +67,53 @@ def extract_text_from_rect(page: fitz.Page, rect: fitz.Rect, padding: float = 2.
     return page.get_text("text", clip=expand_rect(rect, padding)).strip()
 
 
+def highlight_quad_rects(annot: fitz.Annot) -> list[fitz.Rect]:
+    vertices = list(getattr(annot, "vertices", []) or [])
+    rects: list[fitz.Rect] = []
+    for index in range(0, len(vertices), 4):
+        quad_points = vertices[index:index + 4]
+        if len(quad_points) != 4:
+            continue
+        xs = [point[0] for point in quad_points]
+        ys = [point[1] for point in quad_points]
+        rects.append(fitz.Rect(min(xs), min(ys), max(xs), max(ys)))
+    return rects
+
+
+def extract_text_from_highlight(page: fitz.Page, annot: fitz.Annot) -> str:
+    quad_rects = highlight_quad_rects(annot)
+    if not quad_rects:
+        return extract_text_from_rect(page, annot.rect, padding=0.0)
+
+    selected_words: list[tuple[float, float, float, float, str, int, int, int]] = []
+    for word in page.get_text("words", clip=annot.rect):
+        word_box = fitz.Rect(word[:4])
+        word_center = fitz.Point((word_box.x0 + word_box.x1) / 2, (word_box.y0 + word_box.y1) / 2)
+        if any(quad_rect.contains(word_center) for quad_rect in quad_rects):
+            selected_words.append(word)
+
+    if not selected_words:
+        return extract_text_from_rect(page, annot.rect, padding=0.0)
+
+    line_parts: list[str] = []
+    current_line: tuple[int, int] | None = None
+    current_words: list[str] = []
+    for word in selected_words:
+        line_id = (word[5], word[6])
+        if current_line is None:
+            current_line = line_id
+        if line_id != current_line:
+            line_parts.append(" ".join(current_words))
+            current_words = []
+            current_line = line_id
+        current_words.append(word[4])
+
+    if current_words:
+        line_parts.append(" ".join(current_words))
+
+    return "\n".join(line_parts).strip()
+
+
 def format_rect(rect: fitz.Rect) -> str:
     return f"{rect.x0:.2f},{rect.y0:.2f},{rect.x1:.2f},{rect.y1:.2f}"
 
