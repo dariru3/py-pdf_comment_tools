@@ -86,16 +86,11 @@ def extract_text_from_highlight(page: fitz.Page, annot: fitz.Annot) -> str:
         return extract_text_from_rect(page, annot.rect, padding=0.0)
 
     selected_words: list[tuple[float, float, float, float, str, int, int, int]] = []
-    seen_words: set[tuple[float, float, float, float, str, int, int, int]] = set()
-    for word in page.get_text("words"):
+    for word in page.get_text("words", clip=annot.rect):
         word_box = fitz.Rect(word[:4])
         word_center = fitz.Point((word_box.x0 + word_box.x1) / 2, (word_box.y0 + word_box.y1) / 2)
-        word_key = tuple(word)
-        if word_key in seen_words:
-            continue
         if any(quad_rect.contains(word_center) for quad_rect in quad_rects):
             selected_words.append(word)
-            seen_words.add(word_key)
 
     if not selected_words:
         return extract_text_from_rect(page, annot.rect, padding=0.0)
