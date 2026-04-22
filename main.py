@@ -16,5 +16,9 @@ def __getattr__(name: str):
     return getattr(_pdf_comment_tools, name)
 
 
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

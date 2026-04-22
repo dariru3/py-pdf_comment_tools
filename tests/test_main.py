@@ -320,6 +320,9 @@ def test_main_wrapper_preserves_import_compatibility() -> None:
     assert compat_main.DEFAULT_SUMMARY_NAME == tool.DEFAULT_SUMMARY_NAME
     assert compat_main.parse_pages("1,3-4") == {1, 3, 4}
     assert compat_main.__all__ == tool.__all__
+    module_dir = dir(compat_main)
+    assert "DEFAULT_SUMMARY_NAME" in module_dir
+    assert "parse_pages" in module_dir
 
 
 def test_cli_modes_are_exposed_in_help() -> None:
