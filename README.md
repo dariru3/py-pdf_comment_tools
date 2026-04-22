@@ -7,7 +7,7 @@ This repo is organized around a single PDF comment tool with a thin top-level CL
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt pytest
+pip install -e ".[dev]"
 ```
 
 You can also install the package directly:
@@ -63,6 +63,8 @@ Default output: `annotation_comments.csv`
 ```bash
 ./.venv/bin/python -m pytest -q
 ```
+
+Tests should generate temporary PDFs, CSVs, and outputs during execution rather than relying on newly committed fixture files. Avoid adding committed PDF fixtures or generated artifacts for test coverage.
 
 ## Notes
 

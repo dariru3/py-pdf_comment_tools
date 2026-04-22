@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - colab-support
   pull_request:
     branches:
       - main
@@ -26,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e . pytest
+          python -m pip install -e ".[dev]"
 
       - name: Run tests
         run: python -m pytest -q
