@@ -6,29 +6,18 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from pdf_comment_tools import (  # noqa: E402
-    COLOR_MAP,
-    COMMENT_AUTHOR,
-    DEFAULT_COMMENTS_OUTPUT,
-    DEFAULT_SUMMARY_NAME,
-    SHAPE_TYPES,
-    default_annotated_pdf_path,
-    ensure_output_dir,
-    expand_rect,
-    extract_comment_rows,
-    extract_text_from_rect,
-    format_rect,
-    highlight_keywords,
-    iter_annotations,
-    load_keywords,
-    main,
-    map_replies_to_parents,
-    parse_args,
-    parse_pages,
-    resolve_pdf_paths,
-    run_extract_comments,
-    validate_args,
-)
+import pdf_comment_tools as _pdf_comment_tools  # noqa: E402
+
+main = _pdf_comment_tools.main
+__all__ = _pdf_comment_tools.__all__
+
+
+def __getattr__(name: str):
+    return getattr(_pdf_comment_tools, name)
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
 
 
 if __name__ == "__main__":
