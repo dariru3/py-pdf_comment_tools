@@ -12,6 +12,11 @@ dependencies = [
     "PyMuPDF>=1.26.7",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
 [project.scripts]
 pdf-comment-tools = "pdf_comment_tools:main"
 
