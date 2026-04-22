@@ -1,4 +1,5 @@
 import csv
+import importlib.util
 from pathlib import Path
 import subprocess
 import sys
@@ -305,6 +306,20 @@ def test_main_wrapper_shows_cli_help() -> None:
 
     assert result.returncode == 0
     assert "Unified PDF comment tool" in result.stdout
+
+
+def test_main_wrapper_preserves_import_compatibility() -> None:
+    root = Path(__file__).resolve().parent.parent
+    spec = importlib.util.spec_from_file_location("compat_main", root / "main.py")
+    assert spec is not None
+    assert spec.loader is not None
+
+    compat_main = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(compat_main)
+
+    assert compat_main.DEFAULT_SUMMARY_NAME == tool.DEFAULT_SUMMARY_NAME
+    assert compat_main.parse_pages("1,3-4") == {1, 3, 4}
+    assert compat_main.__all__ == tool.__all__
 
 
 def test_cli_modes_are_exposed_in_help() -> None:
