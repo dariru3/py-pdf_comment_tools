@@ -307,7 +307,7 @@ def test_main_wrapper_shows_cli_help() -> None:
     assert "Unified PDF comment tool" in result.stdout
 
 
-def test_extract_comments_mode_is_exposed_in_help() -> None:
+def test_cli_modes_are_exposed_in_help() -> None:
     root = Path(__file__).resolve().parent.parent
     result = subprocess.run(
         [sys.executable, "main.py", "--help"],
