@@ -258,6 +258,37 @@ def test_highlight_keywords_writes_summary_and_output_pdf(tmp_path: Path) -> Non
     assert rows[1]["count"] == "1"
 
 
+def test_run_extract_comments_returns_rows_and_writes_csv_once(tmp_path: Path) -> None:
+    pdf_path = tmp_path / "sample.pdf"
+    output_csv = tmp_path / "annotation_comments.csv"
+    _make_sample_pdf(pdf_path)
+
+    rows = tool.run_extract_comments(pdf_path, pages=None, output_path=output_csv)
+
+    assert output_csv.exists()
+    assert len(rows) == 4
+
+    with output_csv.open("r", newline="", encoding="utf-8") as handle:
+        written_rows = list(csv.DictReader(handle))
+
+    assert len(written_rows) == len(rows)
+
+
+def test_run_extract_comments_skips_csv_when_no_supported_annotations(tmp_path: Path) -> None:
+    pdf_path = tmp_path / "plain.pdf"
+    output_csv = tmp_path / "annotation_comments.csv"
+
+    with fitz.open() as doc:
+        page = doc.new_page()
+        page.insert_text(fitz.Point(72, 72), "Plain text without annotations.", fontsize=12)
+        doc.save(pdf_path)
+
+    rows = tool.run_extract_comments(pdf_path, pages=None, output_path=output_csv)
+
+    assert rows == []
+    assert not output_csv.exists()
+
+
 def test_parse_pages_supports_single_values_and_ranges() -> None:
     assert tool.parse_pages("1,3-4,7") == {1, 3, 4, 7}
 
