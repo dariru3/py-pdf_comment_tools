@@ -92,11 +92,11 @@ def extract_comment_rows(pdf_path: Path, pages: set[int] | None) -> list[dict[st
     return rows
 
 
-def run_extract_comments(pdf_path: Path, pages: set[int] | None, output_path: Path) -> None:
+def run_extract_comments(pdf_path: Path, pages: set[int] | None, output_path: Path) -> list[dict[str, object]]:
     rows = extract_comment_rows(pdf_path, pages)
     if not rows:
         print("No supported annotations found; CSV not written.")
-        return
+        return rows
 
     write_csv_rows(
         output_path,
@@ -104,3 +104,4 @@ def run_extract_comments(pdf_path: Path, pages: set[int] | None, output_path: Pa
         rows,
     )
     print(f"Saved CSV to {output_path}")
+    return rows
