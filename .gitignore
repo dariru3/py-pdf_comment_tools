@@ -2,8 +2,7 @@
 __pycache__/
 *.pyc
 *.pdf
-annotation_comments.csv
-keyword_summary.csv
+*.csv
 *.egg-info/
 build/
 dist/
