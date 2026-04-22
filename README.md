@@ -64,7 +64,7 @@ Default output: `annotation_comments.csv`
 ./.venv/bin/python -m pytest -q
 ```
 
-Tests should generate temporary PDFs, CSVs, and outputs during execution rather than relying on newly committed fixture files. Avoid adding committed PDF fixtures or generated artifacts for test coverage.
+Tests should generate temporary PDFs, keywords CSVs, and outputs during execution rather than relying on committed fixture files. Avoid adding committed PDF/CSV fixtures or generated artifacts for test coverage.
 
 ## Notes
 
